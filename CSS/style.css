@@ -1,6 +1,6 @@
 body{
 	background-color:#f4f4f4;
-	color:#555;
+	color:gray;
 	font-family: Arial,  Helvetica, sans-serif;
 	font-size:16px;
 	line-height:1.6em;
@@ -44,15 +44,14 @@ body{
 }
 
 #showcase{
-	background-image:url('../images/showcase.jpg');
-	background-position: center right;
+	color: black;
 	min-height:300px;
 	margin-bottom: 30px;
 	text-align:center;
 }
 
 #showcase h1{
-	color:#D3D3D3;
+	color:white;
 	font-size:50px;
 	line-height: 1.6em;
 	padding-top:30px;
