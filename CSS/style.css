@@ -1,3 +1,7 @@
+#header-text{
+	padding-top: 10px;
+}
+
 body{
 	background-color:#f4f4f4;
 	color:gray;
@@ -19,6 +23,7 @@ body{
 #main-header{
 	background-color: #FF9C60;
 	color:#fff;
+	height: 75px;
 }
 
 #navbar{
