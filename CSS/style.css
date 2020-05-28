@@ -13,8 +13,11 @@ body{
 	overflow: hidden;
 }
 
+#background{
+	background-color: #ECECEC;
+}
 #main-header{
-	background-color: coral;
+	background-color: #FF9C60;
 	color:#fff;
 }
 
