@@ -11,10 +11,42 @@
     </head>
     <body id="background">
     	<header id="main-header">
-			<div class="container">
-			<h1>yummyNUS</h1>
-			</div>
-		</header>
+		<div class="container">
+		<h1 id ="header-text" style="float:left">yummyNUS</h1>
+		<form class="form-inline" style="float:right">
+			  <label class="sr-only" for="inlineFormInputGroupUsername2">Username</label>
+			  <div class="input-group mt-3 mb-2 mr-sm-2">
+			    <div class="input-group-prepend">
+			      <div class="input-group-text">@</div>
+			    </div>
+			    <input type="text" class="form-control" id="inlineFormInputGroupUsername2" placeholder="Username">
+			  </div>
+			  <label class="sr-only" for="inlineFormInputName2">Password</label>
+			  <input type="text" class="form-control mt-3 mb-2 mr-sm-2" id="inlineFormInputName2" placeholder="Password">
+
+			  <div class="form-check mt-3 mb-2 mr-sm-2">
+			    <input class="form-check-input" type="checkbox" id="inlineFormCheck">
+			    <label class="form-check-label" for="inlineFormCheck">
+			      Remember me
+			    </label>
+			  </div>
+
+			  <button type="submit" class="btn btn-primary mt-3 mb-2">Login</button>
+		</form>
+		</div>
+	</header>
+
+	<nav id="navbar">
+		<div class ="container">
+			<ul>
+				<li><a href="index.html">Home</a></li>
+				<li><a href="#">Stalls</a></li>
+				<li><a href="#">Map</a></li>
+				<li><a href="#">FAQ</a></li>	
+				<li><a href="login.html">Register</a></li>	
+			</ul>
+		</div>
+	</nav>
 		<center>
 	    	<h1>Sign-Up</h1>
 	        <form>
