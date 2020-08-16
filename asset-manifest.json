@@ -1,0 +1,37 @@
+{
+  "files": {
+    "main.css": "/goagetcap5/static/css/main.cc73a5e4.chunk.css",
+    "main.js": "/goagetcap5/static/js/main.1825424b.chunk.js",
+    "main.js.map": "/goagetcap5/static/js/main.1825424b.chunk.js.map",
+    "runtime-main.js": "/goagetcap5/static/js/runtime-main.43518c8b.js",
+    "runtime-main.js.map": "/goagetcap5/static/js/runtime-main.43518c8b.js.map",
+    "static/js/2.396c380f.chunk.js": "/goagetcap5/static/js/2.396c380f.chunk.js",
+    "static/js/2.396c380f.chunk.js.map": "/goagetcap5/static/js/2.396c380f.chunk.js.map",
+    "index.html": "/goagetcap5/index.html",
+    "precache-manifest.4ba800ff878fb283f5629c497d5d88a0.js": "/goagetcap5/precache-manifest.4ba800ff878fb283f5629c497d5d88a0.js",
+    "service-worker.js": "/goagetcap5/service-worker.js",
+    "static/css/main.cc73a5e4.chunk.css.map": "/goagetcap5/static/css/main.cc73a5e4.chunk.css.map",
+    "static/js/2.396c380f.chunk.js.LICENSE.txt": "/goagetcap5/static/js/2.396c380f.chunk.js.LICENSE.txt",
+    "static/media/07xo8frt.bmp": "/goagetcap5/static/media/07xo8frt.3056af40.bmp",
+    "static/media/0i5lxabv.bmp": "/goagetcap5/static/media/0i5lxabv.65f58b7a.bmp",
+    "static/media/133312.jpg": "/goagetcap5/static/media/133312.1d495550.jpg",
+    "static/media/21765274_1844492998901820_7157605741638401878_n1.jpg": "/goagetcap5/static/media/21765274_1844492998901820_7157605741638401878_n1.d570ebbc.jpg",
+    "static/media/25kwi7zr.bmp": "/goagetcap5/static/media/25kwi7zr.df3fdfcb.bmp",
+    "static/media/37kdrwuv.bmp": "/goagetcap5/static/media/37kdrwuv.890c0aec.bmp",
+    "static/media/95rot1ix.bmp": "/goagetcap5/static/media/95rot1ix.2ca11c7c.bmp",
+    "static/media/ej9tbhei.bmp": "/goagetcap5/static/media/ej9tbhei.58539a62.bmp",
+    "static/media/goa.jpg": "/goagetcap5/static/media/goa.31c95278.jpg",
+    "static/media/ngib4nez.bmp": "/goagetcap5/static/media/ngib4nez.d7d3b1e3.bmp",
+    "static/media/qliz96kw.bmp": "/goagetcap5/static/media/qliz96kw.d77bf471.bmp",
+    "static/media/v7jh4j4f.bmp": "/goagetcap5/static/media/v7jh4j4f.37bc301a.bmp",
+    "static/media/vdmst7xs.bmp": "/goagetcap5/static/media/vdmst7xs.8ff7ba9a.bmp",
+    "static/media/x7if2fin.bmp": "/goagetcap5/static/media/x7if2fin.a9c88880.bmp",
+    "static/media/zwvfovcg.bmp": "/goagetcap5/static/media/zwvfovcg.66550120.bmp"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.43518c8b.js",
+    "static/js/2.396c380f.chunk.js",
+    "static/css/main.cc73a5e4.chunk.css",
+    "static/js/main.1825424b.chunk.js"
+  ]
+}
