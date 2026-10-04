@@ -1,0 +1,10 @@
+# Dependencies and generated output
+node_modules/
+dist/
+build/
+.DS_Store
+*.log
+
+# Keep new portraits outside Git; existing tracked photos remain until migration.
+/members/
+/static/media/
