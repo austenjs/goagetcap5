@@ -188,7 +188,7 @@
     const card = ([name, href, image]) => `
       <article class="card" data-name="${name.toLowerCase()}">
         <a class="card-link" href="${href}" target="_blank" rel="noopener noreferrer" aria-label="View ${name}'s profile">
-          <div class="portrait"><img data-member="${image}" alt="Portrait of ${name}" loading="lazy" hidden><span class="initials" aria-hidden="true">${name.split(' ').map(part => part[0]).slice(0, 2).join('')}</span></div>
+          <div class="portrait"><img data-member="${image}" alt="Portrait of ${name}" hidden><span class="initials" aria-hidden="true">${name.split(' ').map(part => part[0]).slice(0, 2).join('')}</span></div>
           <div class="profile">
             <div class="profile-copy"><h2>${name}</h2><p>${href.includes('instagram.com') ? 'Instagram' : 'LinkedIn'} profile</p></div>
             <span class="arrow" aria-hidden="true">
