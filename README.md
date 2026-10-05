@@ -8,4 +8,6 @@ This legacy `master` branch is retained only as a documentation pointer. The obs
 
 For website changes, edit `index.html` on `gh-pages`; no build step is required.
 
-Private Drive originals and a thumbnail service are prepared. Photo migration and removal from Git history remain pending authorization and verification.
+Portrait originals are stored in restricted Google Drive storage. The website uses a public Google-hosted thumbnail service. Raster images have been removed from both branches and their reachable Git history; a check on `gh-pages` prevents new raster-image commits.
+
+Previously downloaded copies, forks, and GitHub cached views of old commits cannot be recalled by rewriting branch history. Public website thumbnails remain downloadable.
