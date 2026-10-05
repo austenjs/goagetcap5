@@ -204,25 +204,48 @@
     const portraitService = 'https://script.google.com/macros/s/AKfycbzHyx_fg_myITen2C7zLzGRqLM8DJJ8vRTipzIQa4CsAgUtP609YkibRHUkfprcoVo_/exec';
     const portraitImages = new Map([...grid.querySelectorAll('img[data-member]')].map(img => [img.dataset.member, img]));
     const scripts = new Map();
+    const queue = [];
+    const attempts = new Map();
+    let activeRequests = 0;
+    function finishPortrait(member, retry) {
+      const request = scripts.get(member);
+      if (!request) return;
+      clearTimeout(request.timer);
+      request.script.remove();
+      scripts.delete(member);
+      activeRequests--;
+      if (retry && attempts.get(member) < 3) setTimeout(() => { queue.push(member); loadPortraits(); }, 1500);
+      loadPortraits();
+    }
+    function loadPortraits() {
+      while (queue.length && activeRequests < 3) {
+        const member = queue.shift();
+        if (scripts.has(member)) continue;
+        attempts.set(member, (attempts.get(member) || 0) + 1);
+        const script = document.createElement('script');
+        script.src = `${portraitService}?member=${encodeURIComponent(member)}`;
+        script.referrerPolicy = 'no-referrer';
+        script.onerror = () => finishPortrait(member, true);
+        const timer = setTimeout(() => finishPortrait(member, true), 30000);
+        scripts.set(member, { script, timer });
+        activeRequests++;
+        document.head.append(script);
+      }
+    }
     window.goaPortrait = payload => {
       const img = portraitImages.get(payload && payload.member);
       if (img && typeof payload.image === 'string' && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(payload.image)) {
         img.onload = () => { img.hidden = false; img.nextElementSibling.hidden = true; };
         img.src = payload.image;
       }
-      scripts.get(payload && payload.member)?.remove();
-      scripts.delete(payload && payload.member);
+      finishPortrait(payload && payload.member, !payload?.image);
     };
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (!entry.isIntersecting || !portraitService.startsWith('https://script.google.com/')) return;
         const member = entry.target.querySelector('img').dataset.member;
-        const script = document.createElement('script');
-        script.src = `${portraitService}?member=${encodeURIComponent(member)}`;
-        script.referrerPolicy = 'no-referrer';
-        script.onerror = () => { script.remove(); scripts.delete(member); };
-        scripts.set(member, script);
-        document.head.append(script);
+        queue.push(member);
+        loadPortraits();
         observer.unobserve(entry.target);
       });
     }, { rootMargin: '300px' });
