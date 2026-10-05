@@ -201,13 +201,13 @@
     grid.innerHTML = members.map(card).join('') + '<div class="empty" id="empty"><strong>No matches found</strong>Try another name.</div>';
 
     // Set only after the Google-hosted service has passed its live checks.
-    const portraitService = 'https://script.google.com/macros/s/AKfycbzHyx_fg_myITen2C7zLzGRqLM8DJJ8vRTipzIQa4CsAgUtP609YkibRHUkfprcoVo_/exec';
+    const portraitService = 'https://script.google.com/macros/s/AKfycbxD0IHVW-8dcPepIKBE6w3zTQthgmmh9g_e5STODgG9vN7qs7RoPALhOWESHrgF1NDN/exec';
     const portraitImages = new Map([...grid.querySelectorAll('img[data-member]')].map(img => [img.dataset.member, img]));
     const scripts = new Map();
     const queue = [];
     const attempts = new Map();
     const validImage = image => typeof image === 'string' && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(image);
-    const cacheVersion = 'portraits-v1';
+    const cacheVersion = 'portraits-v2';
     const cacheAge = 7 * 24 * 60 * 60 * 1000;
     const photoCache = new Promise(resolve => {
       let settled = false;
@@ -252,36 +252,66 @@
       return true;
     }
     let activeRequests = 0;
+    let queueTimer;
     function finishPortrait(member, retry) {
       const request = scripts.get(member);
       if (!request) return;
       clearTimeout(request.timer);
       request.script.remove();
-      scripts.delete(member);
+      request.members.forEach(item => scripts.delete(item));
       activeRequests--;
-      if (retry && attempts.get(member) < 3) setTimeout(() => { queue.push(member); loadPortraits(); }, 1500);
+      request.members.forEach(item => {
+        if (!portraitImages.get(item)?.getAttribute('src') && attempts.get(item) < 3) {
+          setTimeout(() => { queue.push(item); schedulePortraits(); }, 1500);
+        }
+      });
       loadPortraits();
     }
+    function schedulePortraits() {
+      clearTimeout(queueTimer);
+      queueTimer = setTimeout(loadPortraits, 40);
+    }
     function loadPortraits() {
-      while (queue.length && activeRequests < 3) {
-        const member = queue.shift();
-        if (scripts.has(member)) continue;
-        attempts.set(member, (attempts.get(member) || 0) + 1);
-        const script = document.createElement('script');
-        script.src = `${portraitService}?member=${encodeURIComponent(member)}`;
+      while (queue.length && activeRequests < 2) {
+        const members = [];
+        while (queue.length && members.length < 6) {
+          const member = queue.shift();
+          if (scripts.has(member) || members.includes(member) || portraitImages.get(member)?.getAttribute('src')) continue;
+          members.push(member);
+          attempts.set(member, (attempts.get(member) || 0) + 1);
+        }
+        if (!members.length) continue;
+        const script = document.createElement('iframe');
+        const token = Array.from(crypto.getRandomValues(new Uint8Array(16)), byte => byte.toString(16).padStart(2, '0')).join('');
+        script.hidden = true;
+        script.title = 'Load community portraits';
+        script.src = `${portraitService}?transport=frame&token=${token}&members=${encodeURIComponent(members.join(','))}`;
         script.referrerPolicy = 'no-referrer';
-        script.onerror = () => finishPortrait(member, true);
-        const timer = setTimeout(() => finishPortrait(member, true), 30000);
-        scripts.set(member, { script, timer });
+        script.onerror = () => finishPortrait(members[0], true);
+        const timer = setTimeout(() => finishPortrait(members[0], true), 30000);
+        const request = { script, timer, members, token };
+        members.forEach(member => scripts.set(member, request));
         activeRequests++;
-        document.head.append(script);
+        document.body.append(script);
       }
     }
     window.goaPortrait = payload => {
-      const displayed = displayPortrait(payload?.member, payload?.image);
-      if (displayed) savePortrait(payload.member, payload.image);
-      finishPortrait(payload?.member, !displayed);
+      const portraits = Array.isArray(payload?.portraits) ? payload.portraits : [payload];
+      portraits.forEach(portrait => {
+        if (displayPortrait(portrait?.member, portrait?.image)) savePortrait(portrait.member, portrait.image);
+      });
+      portraits.forEach(portrait => finishPortrait(portrait?.member, false));
     };
+    window.addEventListener('message', event => {
+      let origin;
+      try { origin = new URL(event.origin); } catch { return; }
+      if (origin.protocol !== 'https:' || !origin.hostname.endsWith('.googleusercontent.com')) return;
+      const request = [...new Set(scripts.values())].find(item => item.token === event.data?.token);
+      if (!request || !Array.isArray(event.data?.payload?.portraits)) return;
+      const portraits = event.data.payload.portraits.filter(portrait => request.members.includes(portrait?.member));
+      window.goaPortrait({ portraits });
+      finishPortrait(request.members[0], false);
+    });
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (!entry.isIntersecting || !portraitService.startsWith('https://script.google.com/')) return;
@@ -290,7 +320,7 @@
         cachedPortrait(member).then(image => {
           if (image && displayPortrait(member, image)) return;
           queue.push(member);
-          loadPortraits();
+          schedulePortraits();
         });
       });
     }, { rootMargin: '300px' });
