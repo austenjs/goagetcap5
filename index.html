@@ -206,6 +206,51 @@
     const scripts = new Map();
     const queue = [];
     const attempts = new Map();
+    const validImage = image => typeof image === 'string' && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(image);
+    const cacheVersion = 'portraits-v1';
+    const cacheAge = 7 * 24 * 60 * 60 * 1000;
+    const photoCache = new Promise(resolve => {
+      let settled = false;
+      const finish = db => { if (!settled) { settled = true; resolve(db); } };
+      setTimeout(() => finish(null), 1000);
+      try {
+        const request = indexedDB.open('goa-public-thumbnails', 1);
+        request.onupgradeneeded = () => request.result.createObjectStore('portraits');
+        request.onsuccess = () => finish(request.result);
+        request.onerror = () => finish(null);
+        request.onblocked = () => finish(null);
+      } catch { finish(null); }
+    });
+    async function cachedPortrait(member) {
+      const db = await photoCache;
+      if (!db) return null;
+      return new Promise(resolve => {
+        try {
+          const request = db.transaction('portraits').objectStore('portraits').get(`${cacheVersion}:${member}`);
+          request.onsuccess = () => {
+            const record = request.result;
+            resolve(record && Date.now() - record.savedAt < cacheAge && validImage(record.image) ? record.image : null);
+          };
+          request.onerror = () => resolve(null);
+        } catch { resolve(null); }
+      });
+    }
+    async function savePortrait(member, image) {
+      const db = await photoCache;
+      if (!db) return;
+      try {
+        const transaction = db.transaction('portraits', 'readwrite');
+        transaction.onerror = () => {};
+        transaction.objectStore('portraits').put({ image, savedAt: Date.now() }, `${cacheVersion}:${member}`);
+      } catch { /* Private browsing or full storage must not prevent loading. */ }
+    }
+    function displayPortrait(member, image) {
+      const img = portraitImages.get(member);
+      if (!img || !validImage(image)) return false;
+      img.onload = () => { img.hidden = false; img.nextElementSibling.hidden = true; };
+      img.src = image;
+      return true;
+    }
     let activeRequests = 0;
     function finishPortrait(member, retry) {
       const request = scripts.get(member);
@@ -233,20 +278,20 @@
       }
     }
     window.goaPortrait = payload => {
-      const img = portraitImages.get(payload && payload.member);
-      if (img && typeof payload.image === 'string' && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(payload.image)) {
-        img.onload = () => { img.hidden = false; img.nextElementSibling.hidden = true; };
-        img.src = payload.image;
-      }
-      finishPortrait(payload && payload.member, !payload?.image);
+      const displayed = displayPortrait(payload?.member, payload?.image);
+      if (displayed) savePortrait(payload.member, payload.image);
+      finishPortrait(payload?.member, !displayed);
     };
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (!entry.isIntersecting || !portraitService.startsWith('https://script.google.com/')) return;
         const member = entry.target.querySelector('img').dataset.member;
-        queue.push(member);
-        loadPortraits();
         observer.unobserve(entry.target);
+        cachedPortrait(member).then(image => {
+          if (image && displayPortrait(member, image)) return;
+          queue.push(member);
+          loadPortraits();
+        });
       });
     }, { rootMargin: '300px' });
     grid.querySelectorAll('.portrait').forEach(portrait => observer.observe(portrait));
