@@ -94,6 +94,8 @@
     .card-link { display: block; padding: 14px; text-decoration: none; }
     .portrait { position: relative; aspect-ratio: 4 / 3; overflow: hidden; border-radius: 14px; background: var(--surface-2); }
     .portrait img { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform .45s ease; }
+    .portrait img[hidden], .initials[hidden] { display: none; }
+    .initials { display: grid; place-items: center; width: 100%; height: 100%; font-size: 3rem; color: var(--accent, #9ee6ce); }
     .card:hover img { transform: scale(1.035); }
     .profile { display: flex; align-items: center; gap: 14px; padding: 18px 4px 7px; }
     .profile-copy { min-width: 0; flex: 1; }
@@ -160,22 +162,22 @@
 
   <script>
     const members = [
-      ["Angel Clarita Juspi", "https://www.linkedin.com/in/angel-juspi/", "members/angel.png"],
-      ["Otto Alexander Sutianto", "https://www.linkedin.com/in/otto-alexander/", "members/otto.jpeg"],
-      ["Mario Lorenzo", "https://www.linkedin.com/in/mario7lorenzo/", "https://austenjs.github.io/goagetcap5/static/media/95rot1ix.2ca11c7c.bmp"],
-      ["Dick Jessen William", "https://www.linkedin.com/in/dickjessen/", "members/dick.jpeg"],
-      ["Fidella Widjojo", "https://www.linkedin.com/in/fidella-widjojo-896b24192/", "https://austenjs.github.io/goagetcap5/static/media/ngib4nez.d7d3b1e3.bmp"],
-      ["Ivonne Khomas", "https://www.linkedin.com/in/ivonne-khomas-b939031a3/", "https://austenjs.github.io/goagetcap5/static/media/133312.1d495550.jpg"],
-      ["Hokiewan Thezeus", "https://www.linkedin.com/in/hokiewan-thezeus/", "members/hokiewa.jpeg"],
-      ["Matheus Aaron", "https://www.linkedin.com/in/matheusaaron/", "members/matheus.jpeg"],
-      ["Austin Santoso", "https://www.linkedin.com/in/austinsantoso/", "members/austin.jpeg"],
-      ["Geoffrey Bryan Lion", "https://www.linkedin.com/in/geoffreylion/", "members/geoffrey.jpeg"],
-      ["Austen Jeremy Sugiarto", "https://www.linkedin.com/in/austenjs/", "members/austen.png"],
-      ["Jeff Ivanos Gana", "https://www.linkedin.com/in/jeffgana/", "members/jeff.jpeg"],
-      ["Alvin Gunawan", "https://www.linkedin.com/in/alvin-gunawan/", "https://austenjs.github.io/goagetcap5/static/media/37kdrwuv.890c0aec.bmp"],
-      ["Alvon Gunawan", "https://www.linkedin.com/in/alvongunawan/", "members/alvon.jpeg"],
-      ["Vishandi Rudy Keneta", "https://www.linkedin.com/in/vishandi-rudy-keneta-22b89b186/", "members/vishandi.jpeg"],
-      ["Jonathan Kwok", "https://www.linkedin.com/in/jonathan-kwok-a159591b4/", "members/jonathan.jpeg"]
+      ["Angel Clarita Juspi", "https://www.linkedin.com/in/angel-juspi/", "angel"],
+      ["Otto Alexander Sutianto", "https://www.linkedin.com/in/otto-alexander/", "otto"],
+      ["Mario Lorenzo", "https://www.linkedin.com/in/mario7lorenzo/", "mario"],
+      ["Dick Jessen William", "https://www.linkedin.com/in/dickjessen/", "dick"],
+      ["Fidella Widjojo", "https://www.linkedin.com/in/fidella-widjojo-896b24192/", "fidella"],
+      ["Ivonne Khomas", "https://www.linkedin.com/in/ivonne-khomas-b939031a3/", "ivonne"],
+      ["Hokiewan Thezeus", "https://www.linkedin.com/in/hokiewan-thezeus/", "hokiewan"],
+      ["Matheus Aaron", "https://www.linkedin.com/in/matheusaaron/", "matheus"],
+      ["Austin Santoso", "https://www.linkedin.com/in/austinsantoso/", "austin"],
+      ["Geoffrey Bryan Lion", "https://www.linkedin.com/in/geoffreylion/", "geoffrey"],
+      ["Austen Jeremy Sugiarto", "https://www.linkedin.com/in/austenjs/", "austen"],
+      ["Jeff Ivanos Gana", "https://www.linkedin.com/in/jeffgana/", "jeff"],
+      ["Alvin Gunawan", "https://www.linkedin.com/in/alvin-gunawan/", "alvin"],
+      ["Alvon Gunawan", "https://www.linkedin.com/in/alvongunawan/", "alvon"],
+      ["Vishandi Rudy Keneta", "https://www.linkedin.com/in/vishandi-rudy-keneta-22b89b186/", "vishandi"],
+      ["Jonathan Kwok", "https://www.linkedin.com/in/jonathan-kwok-a159591b4/", "jonathan"]
     ].sort((a, b) => a[0].localeCompare(b[0]));
 
     const grid = document.querySelector('#grid');
@@ -186,7 +188,7 @@
     const card = ([name, href, image]) => `
       <article class="card" data-name="${name.toLowerCase()}">
         <a class="card-link" href="${href}" target="_blank" rel="noopener noreferrer" aria-label="View ${name}'s profile">
-          <div class="portrait"><img src="${image}" alt="Portrait of ${name}" loading="lazy"></div>
+          <div class="portrait"><img data-member="${image}" alt="Portrait of ${name}" loading="lazy" hidden><span class="initials" aria-hidden="true">${name.split(' ').map(part => part[0]).slice(0, 2).join('')}</span></div>
           <div class="profile">
             <div class="profile-copy"><h2>${name}</h2><p>${href.includes('instagram.com') ? 'Instagram' : 'LinkedIn'} profile</p></div>
             <span class="arrow" aria-hidden="true">
@@ -197,6 +199,34 @@
       </article>`;
 
     grid.innerHTML = members.map(card).join('') + '<div class="empty" id="empty"><strong>No matches found</strong>Try another name.</div>';
+
+    // Set only after the Google-hosted service has passed its live checks.
+    const portraitService = 'https://script.google.com/macros/s/AKfycbzHyx_fg_myITen2C7zLzGRqLM8DJJ8vRTipzIQa4CsAgUtP609YkibRHUkfprcoVo_/exec';
+    const portraitImages = new Map([...grid.querySelectorAll('img[data-member]')].map(img => [img.dataset.member, img]));
+    const scripts = new Map();
+    window.goaPortrait = payload => {
+      const img = portraitImages.get(payload && payload.member);
+      if (img && typeof payload.image === 'string' && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(payload.image)) {
+        img.onload = () => { img.hidden = false; img.nextElementSibling.hidden = true; };
+        img.src = payload.image;
+      }
+      scripts.get(payload && payload.member)?.remove();
+      scripts.delete(payload && payload.member);
+    };
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting || !portraitService.startsWith('https://script.google.com/')) return;
+        const member = entry.target.querySelector('img').dataset.member;
+        const script = document.createElement('script');
+        script.src = `${portraitService}?member=${encodeURIComponent(member)}`;
+        script.referrerPolicy = 'no-referrer';
+        script.onerror = () => { script.remove(); scripts.delete(member); };
+        scripts.set(member, script);
+        document.head.append(script);
+        observer.unobserve(entry.target);
+      });
+    }, { rootMargin: '300px' });
+    grid.querySelectorAll('.portrait').forEach(portrait => observer.observe(portrait));
 
     function filterMembers() {
       const query = search.value.trim().toLowerCase();

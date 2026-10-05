@@ -7,10 +7,10 @@ A responsive, searchable directory of 16 GoA members and their LinkedIn profiles
 ## Maintenance
 
 - `index.html` contains the layout, styles, member names, and profile links. No build tools or dependencies are required.
-- `members/` and four files in `static/media/` supply the live portraits. Private Drive storage and a replacement thumbnail service are prepared; deployment and photo-history cleanup await authorization.
+- Portrait originals are stored in restricted Google Drive storage. The website requests public thumbnails from a Google Apps Script service; no portrait binaries or Drive file IDs belong in this repository.
 - `service-worker.js` retires the previous React offline cache for returning visitors. Keep this file until the cache transition is complete.
 - `robots.txt` contains crawler directives.
 
-GitHub Pages publishes `gh-pages`. The `master` branch is kept aligned with the maintained website instead of obsolete React source and unrelated demo pages.
+GitHub Pages publishes `gh-pages`. The `master` branch contains a pointer to the maintained website.
 
 Portraits displayed publicly can be saved by visitors. Deleting files does not erase earlier Git commits.
